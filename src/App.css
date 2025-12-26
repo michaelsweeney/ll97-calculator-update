@@ -1,0 +1,67 @@
+
+
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
+@font-face {
+	font-family: 'CircularStd-Black';
+	src: local('CircularStd'), url('./assets/fonts/CircularStd-Black.otf') format('truetype');
+}
+
+@font-face {
+	font-family: 'CircularStd-Book';
+	src: local('CircularStd'), url('./assets/fonts/CircularStd-Book.otf') format('truetype');
+}
+@font-face {
+	font-family: 'CircularStd-Medium';
+	src: local('CircularStd'), url('./assets/fonts/CircularStd-Medium.otf') format('truetype');
+}
+@font-face {
+	font-family: 'CircularStd-Bold';
+	src: local('CircularStd'), url('./assets/fonts/CircularStd-Bold.otf') format('truetype');
+}
+
+
+div {
+    font-family: 'CircularStd-Book';
+}
+
+
+.print-container {
+	/* display: none; */
+	visibility: hidden;
+} 
+
+
+
+
+@media print {
+	.layout-container {
+		display: none !important;
+		visibility: hidden;
+	}
+	.print-container {
+		/* display: block !important; */
+		visibility: visible !important;
+	}
+	.MuiPopover-root {
+		display: none !important;
+
+	}
+}
+
+
+/* toggle print mode dev mode */
+/* .layout-container {
+	display: none !important;
+	visibility: hidden;
+}
+.print-container {
+	visibility: visible !important;
+}
+.MuiPopover-root {
+	display: none !important;
+} */

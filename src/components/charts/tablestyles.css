@@ -1,0 +1,62 @@
+.border-top {
+    stroke: black;
+    fill: black;
+    stroke-width: 1;
+}
+
+.border-bottom {
+    stroke: black;
+    fill: black;
+    stroke-width: 2;
+}
+
+.border-mid {
+    fill: #FF5C00;
+    stroke: #FF5C00;
+    stroke-width: 1;
+}
+
+.idx-top-text {
+    font-family: CircularStd-Bold;
+    text-anchor: end;
+    font-size: 12px
+}
+
+.idx-top-text-small {
+    font-size: 9px;
+}
+
+.idx-bottom-text {
+    font-family: CircularStd-Medium;
+    text-anchor: end;
+    font-size: 10px;
+}
+
+.idx-bottom-text-small {
+    font-size: 8px;
+}
+
+.idx-alert-text {
+    fill: #FF5C00
+}
+
+.table-val-text {
+    font-family: CircularStd-Book;
+    text-anchor: middle;
+    font-size: 14px;
+}
+.table-val-text-small {
+    font-size: 10px;
+}
+
+.table-val-alert-text {
+    fill: #FF5C00
+}
+.period-title-text {
+    font-family: CircularStd-Bold;
+    text-anchor: middle;
+    font-size: 14px;
+}
+.period-title-text-small {
+    font-size: 10px;
+}
