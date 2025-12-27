@@ -71,8 +71,6 @@ const MainLayout = () => {
   )
   const { current_view } = useAppSelector(state => state.ui)
 
-  console.log('MainLayout rendering with current_view:', current_view)
-
   const ChartViewComponent = () => {
     return is_input_info_missing ? (
       <NoInputLanguage />
@@ -84,26 +82,20 @@ const MainLayout = () => {
   }
 
   const CurrentViewComponent = () => {
-    console.log('CurrentViewComponent switch on:', current_view)
     switch (current_view) {
       case 'building_summary_dialogue':
-        console.log('Rendering BuildingSummaryDialogue')
         return <BuildingSummaryDialogue />
 
       case 'load_building_dialogue':
-        console.log('Rendering LoadBuildingDialogue')
         return <LoadBuildingDialogue />
 
       case 'chart_view':
-        console.log('Rendering ChartViewComponent')
         return <ChartViewComponent />
 
       case 'calc_info_dialogue':
-        console.log('Rendering CalcInfoDialogue')
         return <CalcInfoDialogue />
 
       default:
-        console.log('Rendering default ChartViewComponent')
         return <ChartViewComponent />
     }
   }
