@@ -4,13 +4,17 @@ import { decodeScenario } from '../shared/urlState'
 import { fromScenario } from '../lib/scenarioAdapter'
 import { buildingInputActions } from 'store/buildinginputslice'
 import { ll84QueryActions } from 'store/ll84queryslice'
+import { uiActions } from 'store/uislice'
 import { handleLL84QueryResponse } from 'locallaw/ll84_query'
 import { LL84SelectionToLL97Inputs } from 'locallaw/ll84_query_to_ll97_inputs'
 import type { LL84QueryPropertyTypes, LL84YearTypes } from 'types'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 
 const UrlStateLoader = () => {
   const dispatch = useAppDispatch()
   const [, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -23,18 +27,21 @@ const UrlStateLoader = () => {
         ? `${bbl.slice(0, 1)}-${bbl.slice(1, 6)}-${bbl.slice(6, 10)}`
         : bbl
 
-      // BBL + year mode: re-fetch from LL84 API
       handleLL84QueryResponse(
         dashedBbl,
         year,
         (results: LL84QueryPropertyTypes[]) => {
           const match = results.find(r => r.nyc_bbl === dashedBbl) ?? results[0]
-          if (!match) return
+          if (!match) {
+            setError(`No LL84 record found for BBL ${dashedBbl}.`)
+            return
+          }
 
           dispatch(ll84QueryActions.setSelectedLL84Property(match))
           dispatch(ll84QueryActions.setHasLL84SummaryBeenClosed(false))
           const ll97_inputs = LL84SelectionToLL97Inputs(match)
           dispatch(buildingInputActions.setBuildingInputsFromLL84Results(ll97_inputs))
+          dispatch(uiActions.setCurrentView('building_summary_dialogue'))
         },
         setIsLoading
       )
@@ -51,7 +58,10 @@ const UrlStateLoader = () => {
     if (!stateParam) return
 
     const scenario = decodeScenario(stateParam)
-    if (!scenario) return
+    if (!scenario) {
+      setError('Could not decode the shared link. It may be invalid or outdated.')
+      return
+    }
 
     const { inputs, ll84Meta } = fromScenario(scenario)
     dispatch(buildingInputActions.setBuildingInputsFromScenario(inputs))
@@ -74,7 +84,18 @@ const UrlStateLoader = () => {
     window.history.replaceState({}, '', clean.toString())
   }, [dispatch])
 
-  return null
+  return (
+    <Snackbar
+      open={error !== null}
+      autoHideDuration={6000}
+      onClose={() => setError(null)}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    >
+      <Alert severity="error" onClose={() => setError(null)} sx={{ borderRadius: 0 }}>
+        {error}
+      </Alert>
+    </Snackbar>
+  )
 }
 
 export default UrlStateLoader
