@@ -19,6 +19,7 @@ const UrlStateLoader = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const bbl = params.get('bbl')
+    const bin = params.get('bin')
     const year = params.get('year') as LL84YearTypes | null
 
     if (bbl && year) {
@@ -31,9 +32,12 @@ const UrlStateLoader = () => {
         dashedBbl,
         year,
         (results: LL84QueryPropertyTypes[]) => {
-          const match = results.find(r => r.nyc_bbl === dashedBbl) ?? results[0]
+          const match =
+            results.find(r => r.nyc_bbl === dashedBbl) ??
+            (bin ? results.find(r => r.nyc_bin === bin) : undefined) ??
+            results[0]
           if (!match) {
-            setError(`No LL84 record found for BBL ${dashedBbl}.`)
+            setError(`No LL84 record found for BBL ${dashedBbl}${bin ? ` / BIN ${bin}` : ''}.`)
             return
           }
 
@@ -48,6 +52,7 @@ const UrlStateLoader = () => {
 
       const clean = new URL(window.location.href)
       clean.searchParams.delete('bbl')
+      clean.searchParams.delete('bin')
       clean.searchParams.delete('year')
       window.history.replaceState({}, '', clean.toString())
       return
