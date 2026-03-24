@@ -1,19 +1,19 @@
 import { styled } from '@mui/material/styles'
 import { FooterTextAKF } from 'styles/typography'
 
-const C15Brand = styled('span')`
-  font-family: Nunito, 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: rgb(221, 7, 114);
-  transition: all 0.35s ease;
-`
+// const C15Brand = styled('span')`
+//   font-family: Nunito, 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+//   font-size: 24px;
+//   font-weight: 700;
+//   color: rgb(221, 7, 114);
+//   transition: all 0.35s ease;
+// `
 
-const SuperchargedText = styled('div')`
-  font-family: CircularStd-Book;
-  font-size: 13px;
-  color: rgb(180, 180, 180);
-`
+// const SuperchargedText = styled('div')`
+//   font-family: CircularStd-Book;
+//   font-size: 13px;
+//   color: rgb(180, 180, 180);
+// `
 
 const Right = styled('div')`
   display: inline-block;
@@ -47,9 +47,10 @@ const Footer = () => {
   return (
     <Root>
       <Left>
-        <SuperchargedText>
+        {/* supercharged by Cadence OneFive° — uncomment to re-enable */}
+        {/* <SuperchargedText>
           supercharged by <C15Brand>Cadence OneFive°</C15Brand>
-        </SuperchargedText>
+        </SuperchargedText> */}
       </Left>
       <Right>
         <FooterTextAKF>
