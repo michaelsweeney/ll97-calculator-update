@@ -15,6 +15,7 @@ const UrlStateLoader = () => {
   const dispatch = useAppDispatch()
   const [, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -48,6 +49,7 @@ const UrlStateLoader = () => {
         const ll97_inputs = LL84SelectionToLL97Inputs(match)
         dispatch(buildingInputActions.setBuildingInputsFromLL84Results(ll97_inputs))
         dispatch(uiActions.setCurrentView('building_summary_dialogue'))
+        setSuccess(`Loaded: ${match.property_name}`)
       }
 
       handleLL84QueryResponse(searchValue, year, onResults, setIsLoading)
@@ -92,16 +94,28 @@ const UrlStateLoader = () => {
   }, [dispatch])
 
   return (
-    <Snackbar
-      open={error !== null}
-      autoHideDuration={6000}
-      onClose={() => setError(null)}
-      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-    >
-      <Alert severity="error" onClose={() => setError(null)} sx={{ borderRadius: 0 }}>
-        {error}
-      </Alert>
-    </Snackbar>
+    <>
+      <Snackbar
+        open={success !== null}
+        autoHideDuration={4000}
+        onClose={() => setSuccess(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={() => setSuccess(null)} sx={{ borderRadius: 0 }}>
+          {success}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={error !== null}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setError(null)} sx={{ borderRadius: 0 }}>
+          {error}
+        </Alert>
+      </Snackbar>
+    </>
   )
 }
 
