@@ -13,7 +13,6 @@ const SuperchargedText = styled('div')`
   font-family: CircularStd-Book;
   font-size: 13px;
   color: rgb(180, 180, 180);
-  padding-top: 4px;
 `
 
 const Right = styled('div')`
@@ -35,7 +34,7 @@ const Left = styled('div')`
   padding-right: 10px;
   box-sizing: border-box;
   padding-left: 20px;
-  padding-top: 15px;
+  padding-top: 12px;
 `
 
 const Root = styled('div')`
@@ -49,7 +48,7 @@ const Footer = () => {
     <Root>
       <Left>
         <SuperchargedText>
-          supercharged by <C15Brand>Cadence OneFive</C15Brand>
+          supercharged by <C15Brand>Cadence OneFive°</C15Brand>
         </SuperchargedText>
       </Left>
       <Right>
