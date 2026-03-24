@@ -174,10 +174,10 @@ const Header = () => {
         modalTitle="Link copied to clipboard"
         closable={true}
       >
-        <ShareDialogCopied>URL copied to clipboard.</ShareDialogCopied>
-        <ShareDialogLabel>URL</ShareDialogLabel>
+        <ShareDialogCopied>Shareable URL copied to clipboard.</ShareDialogCopied>
+        <ShareDialogLabel>Shareable URL (paste in browser)</ShareDialogLabel>
         <ShareDialogValue>{shareDialog?.url}</ShareDialogValue>
-        <ShareDialogLabel>State blob</ShareDialogLabel>
+        <ShareDialogLabel>State blob (use with CLI --from-state)</ShareDialogLabel>
         <ShareDialogValue>{shareDialog?.blob}</ShareDialogValue>
       </ModalWrapper>
 
