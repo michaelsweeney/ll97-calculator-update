@@ -148,7 +148,7 @@ Both implementations produce the same output for ASCII input and both handle ful
 1. `UrlStateLoader` mounts inside `App.tsx` **before** any other state-modifying component (first child after providers). This ensures it fires before any effect that touches Redux state.
 2. Checks for `?state=` param in `window.location.search`
 3. `decodeScenario()` → `BuildingScenario | null`
-4. On success: `scenarioAdapter.fromScenario(scenario)` → dispatch `setBuildingInputsFromLL97Scenario` and ll84 metadata actions. Sets `is_default_rates: true` if `utility_rates` absent, `false` if present.
+4. On success: `scenarioAdapter.fromScenario(scenario)` → dispatch `setBuildingInputsFromScenario` (new action, see adapter spec) and ll84 metadata actions. Sets `is_default_rates: true` if `utility_rates` absent, `false` if present.
 5. Replace history entry via `window.history.replaceState` to strip `?state` from the URL (back button still works, URL is clean after load)
 6. On failure (null returned): silent fallback to default Redux state — no dispatch, no error shown
 
@@ -193,14 +193,17 @@ Bridges `BuildingScenario` and the Redux store. Two functions:
 
 **`toScenario(buildingInputs: BuildingInputTypes, ll84Slice: LL84QuerySliceTypes): BuildingScenario`**
 - Maps `building_types[]` → `building_uses[]`
-- Maps all utility consumption fields
+- Maps all utility consumption fields including `electric_onsite_generation.photovoltaic.consumption` → `utilities.elec_onsite_gen_kwh`
 - Includes `utility_rates` only if `buildingInputs.is_default_rates === false`
 - Includes `ll84` block only if `ll84Slice.is_ll84_loaded === true`
 
 **`fromScenario(scenario: BuildingScenario): { inputs: BuildingInputTypes, ll84Meta: Partial<LL84QuerySliceTypes> }`**
 - Maps `building_uses[]` → `building_types[]` with sequential `building_id`s (0, 1, 2)
+- Maps `utilities.elec_onsite_gen_kwh` → `electric_onsite_generation.photovoltaic.consumption` (top-level field in `BuildingInputTypes`, separate from `utilities`)
 - Sets `is_default_rates: true` if `scenario.utility_rates` is absent, `false` if present
 - Returns `ll84Meta` with `is_ll84_loaded`, `ll84_building_name`, `ll84_year_label`, and `ll84_year_selection` populated from `scenario.ll84` if present. Restoring `ll84_year_selection` ensures the year dropdown shows the correct value in the LL84 provenance display rather than the default.
+
+**New Redux action required:** Add `setBuildingInputsFromScenario(payload: BuildingInputTypes)` to `buildinginputslice.tsx`, following the same pattern as the existing `setBuildingInputsFromLL84Results` action. This action replaces the full building inputs state. `UrlStateLoader` dispatches this action after calling `fromScenario`.
 
 This is the only file that knows about both canonical and Redux types.
 
@@ -208,11 +211,16 @@ This is the only file that knows about both canonical and Redux types.
 
 ## `src/shared/calculations.ts`
 
-A port of `ll97_output_calcs.tsx` for Node use. Before porting, audit `ll97_output_calcs.tsx` for React and d3 imports:
-- Any `React` import: remove entirely (the calc file may use React only for JSX, which won't be present in the port)
-- Any `d3` usage: inline the math directly (d3 is likely used only for `d3.sum` or similar — replace with `array.reduce`)
+A port of `ll97_output_calcs.tsx` for Node use. `ll97_output_calcs.tsx` has no React or d3 imports — the main dependency concern is import path resolution.
 
-The port exposes the same calculation functions but with no browser/framework dependencies. `ll97_output_calcs.tsx` in `src/locallaw/` is not modified.
+`ll97_output_calcs.tsx` imports from `'types'` (a Vite/tsconfig path alias) and `'./lookups'` (relative). Neither resolves in a plain Node `.js` CLI.
+
+Resolution strategy:
+- `src/shared/calculations.ts` imports coefficient lookup data from `src/locallaw/lookups.tsx` using a relative path (`'../locallaw/lookups'`). This works from within `src/shared/` and stays within the tsconfig compile scope.
+- The CLI (`cli/calculate.js`) calls `src/shared/calculations.ts` via a relative import. Since `cli/` is outside `src/`, it imports as `'../src/shared/calculations.js'` (or use the compiled output path if a build step is added).
+- The `'types'` alias: `src/shared/calculations.ts` imports only the types it needs — move them into `src/shared/types.ts` or use `../../types` relative path. Do not rely on the `'types'` alias in `src/shared/`.
+
+The port exposes the same calculation functions. `ll97_output_calcs.tsx` in `src/locallaw/` is not modified.
 
 ---
 
