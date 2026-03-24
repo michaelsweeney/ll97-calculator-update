@@ -8,6 +8,7 @@ import { colors } from 'styles/colors'
 import { InfoIconButton, PrintIconButton, ShareIconButton } from './iconbuttons'
 import { encodeScenario } from '../shared/urlState'
 import { toScenario } from '../lib/scenarioAdapter'
+import type { BuildingScenario } from '../shared/types'
 import NavMenu from './navmenu'
 import ModalWrapper from './modals/modalwrapper'
 
@@ -104,6 +105,19 @@ const ShareDialogValue = styled('div')`
   color: ${colors.grays.dark};
 `
 
+const ShareDialogRow = styled('div')`
+  display: flex;
+  justify-content: space-between;
+  font-family: CircularStd-Book;
+  font-size: 13px;
+  padding: 3px 0;
+  color: ${colors.grays.dark};
+`
+
+const ShareDialogRowKey = styled('span')`
+  color: ${colors.grays.medium};
+`
+
 const ShareDialogCopied = styled('div')`
   font-family: CircularStd-Book;
   font-size: 14px;
@@ -137,7 +151,7 @@ const NavButtonWrapper = styled('div')`
 
 const Header = () => {
   const dispatch = useAppDispatch()
-  const [shareDialog, setShareDialog] = useState<{ url: string; blob: string } | null>(null)
+  const [shareDialog, setShareDialog] = useState<{ url: string; blob: string; scenario: BuildingScenario } | null>(null)
   const { is_ll84_loaded, ll84_year_label, ll84_building_name } = useAppSelector(
     state => state.ll84_query
   )
@@ -163,7 +177,7 @@ const Header = () => {
     url.searchParams.set('state', encoded)
     const fullUrl = url.toString()
     navigator.clipboard.writeText(fullUrl)
-    setShareDialog({ url: fullUrl, blob: encoded })
+    setShareDialog({ url: fullUrl, blob: encoded, scenario })
   }
 
   return (
@@ -175,6 +189,58 @@ const Header = () => {
         closable={true}
       >
         <ShareDialogCopied>Shareable URL copied to clipboard.</ShareDialogCopied>
+
+        <ShareDialogLabel>Building</ShareDialogLabel>
+        <ShareDialogValue>
+          {shareDialog?.scenario.building_uses.map((u, i) => (
+            <ShareDialogRow key={i}>
+              <ShareDialogRowKey>{u.building_type}</ShareDialogRowKey>
+              <span>{u.building_area.toLocaleString()} sqft</span>
+            </ShareDialogRow>
+          ))}
+        </ShareDialogValue>
+
+        <ShareDialogLabel>Utilities</ShareDialogLabel>
+        <ShareDialogValue>
+          {shareDialog && (() => {
+            const u = shareDialog.scenario.utilities
+            const rows: { label: string; value: string }[] = [
+              { label: 'Electricity', value: `${u.elec_kwh.toLocaleString()} kWh` },
+              { label: 'Natural gas', value: `${u.gas_therms.toLocaleString()} therms` },
+              { label: 'Steam', value: `${u.steam_mlbs.toLocaleString()} Mlbs` },
+              { label: 'Fuel oil #2', value: `${u.fuel_two_gal.toLocaleString()} gal` },
+              { label: 'Fuel oil #4', value: `${u.fuel_four_gal.toLocaleString()} gal` },
+              { label: 'Onsite generation', value: `${u.elec_onsite_gen_kwh.toLocaleString()} kWh` },
+            ].filter(r => !r.value.startsWith('0'))
+            return rows.map(r => (
+              <ShareDialogRow key={r.label}>
+                <ShareDialogRowKey>{r.label}</ShareDialogRowKey>
+                <span>{r.value}</span>
+              </ShareDialogRow>
+            ))
+          })()}
+        </ShareDialogValue>
+
+        {shareDialog?.scenario.ll84 && (
+          <>
+            <ShareDialogLabel>LL84 source</ShareDialogLabel>
+            <ShareDialogValue>
+              <ShareDialogRow>
+                <ShareDialogRowKey>BBL</ShareDialogRowKey>
+                <span>{shareDialog.scenario.ll84.bbl}</span>
+              </ShareDialogRow>
+              <ShareDialogRow>
+                <ShareDialogRowKey>Building</ShareDialogRowKey>
+                <span>{shareDialog.scenario.ll84.building_name}</span>
+              </ShareDialogRow>
+              <ShareDialogRow>
+                <ShareDialogRowKey>Year</ShareDialogRowKey>
+                <span>{shareDialog.scenario.ll84.year_label}</span>
+              </ShareDialogRow>
+            </ShareDialogValue>
+          </>
+        )}
+
         <ShareDialogLabel>Shareable URL (paste in browser)</ShareDialogLabel>
         <ShareDialogValue>{shareDialog?.url}</ShareDialogValue>
         <ShareDialogLabel>State blob (use with CLI --from-state)</ShareDialogLabel>
