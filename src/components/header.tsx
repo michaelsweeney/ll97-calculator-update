@@ -1,10 +1,13 @@
 import * as React from 'react'
+import { useState } from 'react'
 import { useAppDispatch, useAppSelector } from 'store/hooks'
 import { uiActions } from 'store/uislice'
 
 import { colors } from 'styles/colors'
 
-import { InfoIconButton, PrintIconButton } from './iconbuttons'
+import { InfoIconButton, PrintIconButton, ShareIconButton } from './iconbuttons'
+import { encodeScenario } from '../shared/urlState'
+import { toScenario } from '../lib/scenarioAdapter'
 import NavMenu from './navmenu'
 
 import { styled } from '@mui/material/styles'
@@ -85,6 +88,12 @@ const PrintButtonWrapper = styled('div')`
   left: 45px;
   top: -5px;
 `
+const ShareButtonWrapper = styled('div')`
+  display: inline-block;
+  position: relative;
+  left: 35px;
+  top: -5px;
+`
 const InfoIconButtonWrapper = styled('div')`
   display: inline-block;
   position: relative;
@@ -99,9 +108,12 @@ const NavButtonWrapper = styled('div')`
 
 const Header = () => {
   const dispatch = useAppDispatch()
+  const [copied, setCopied] = useState(false)
   const { is_ll84_loaded, ll84_year_label, ll84_building_name } = useAppSelector(
     state => state.ll84_query
   )
+  const building_inputs = useAppSelector(state => state.building_inputs)
+  const ll84_query = useAppSelector(state => state.ll84_query)
 
   const handleLL84NameClick = () => {
     dispatch(uiActions.setCurrentView('load_building_dialogue'))
@@ -113,6 +125,16 @@ const Header = () => {
 
   const handleInfoClick = () => {
     dispatch(uiActions.setCurrentView('calc_info_dialogue'))
+  }
+
+  const handleShare = () => {
+    const scenario = toScenario(building_inputs, ll84_query)
+    const encoded = encodeScenario(scenario)
+    const url = new URL(window.location.href)
+    url.searchParams.set('state', encoded)
+    navigator.clipboard.writeText(url.toString())
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -137,6 +159,10 @@ const Header = () => {
         </div>
       </Middle>
       <Right>
+        <ShareButtonWrapper>
+          <ShareIconButton width={25} height={25} active={copied} clickCallback={handleShare} />
+        </ShareButtonWrapper>
+
         <InfoIconButtonWrapper>
           <InfoIconButton width={25} height={25} clickCallback={handleInfoClick} />
         </InfoIconButtonWrapper>
