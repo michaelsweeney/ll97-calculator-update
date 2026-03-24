@@ -1,6 +1,8 @@
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import "./App.css";
 
+import UrlStateLoader from "components/UrlStateLoader";
+
 import MainLayout from "components/mainlayout";
 import TestComponent from "components/testcomponent";
 import InputListener from "components/inputlistener";
@@ -36,6 +38,7 @@ const theme = createTheme({
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
+      <UrlStateLoader />
       <InputListener />
       <WindowListener />
       <TestComponent />
