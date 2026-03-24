@@ -151,7 +151,7 @@ const NavButtonWrapper = styled('div')`
 
 const Header = () => {
   const dispatch = useAppDispatch()
-  const [shareDialog, setShareDialog] = useState<{ url: string; blob: string; scenario: BuildingScenario } | null>(null)
+  const [shareDialog, setShareDialog] = useState<{ url: string; blob: string | null; scenario: BuildingScenario } | null>(null)
   const { is_ll84_loaded, ll84_year_label, ll84_building_name } = useAppSelector(
     state => state.ll84_query
   )
@@ -172,12 +172,23 @@ const Header = () => {
 
   const handleShare = () => {
     const scenario = toScenario(building_inputs, ll84_query)
-    const encoded = encodeScenario(scenario)
     const url = new URL(window.location.href)
-    url.searchParams.set('state', encoded)
-    const fullUrl = url.toString()
-    navigator.clipboard.writeText(fullUrl)
-    setShareDialog({ url: fullUrl, blob: encoded, scenario })
+
+    if (scenario.ll84?.bbl) {
+      // LL84-loaded building: short URL with BBL + year
+      url.searchParams.set('bbl', scenario.ll84.bbl)
+      url.searchParams.set('year', scenario.ll84.year)
+      const fullUrl = url.toString()
+      navigator.clipboard.writeText(fullUrl)
+      setShareDialog({ url: fullUrl, blob: null, scenario })
+    } else {
+      // Manual input: encode full state as blob
+      const encoded = encodeScenario(scenario)
+      url.searchParams.set('state', encoded)
+      const fullUrl = url.toString()
+      navigator.clipboard.writeText(fullUrl)
+      setShareDialog({ url: fullUrl, blob: encoded, scenario })
+    }
   }
 
   return (
@@ -243,8 +254,12 @@ const Header = () => {
 
         <ShareDialogLabel>Shareable URL (paste in browser)</ShareDialogLabel>
         <ShareDialogValue>{shareDialog?.url}</ShareDialogValue>
-        <ShareDialogLabel>State blob (use with CLI --from-state)</ShareDialogLabel>
-        <ShareDialogValue>{shareDialog?.blob}</ShareDialogValue>
+        {shareDialog?.blob && (
+          <>
+            <ShareDialogLabel>State blob (use with CLI --from-state)</ShareDialogLabel>
+            <ShareDialogValue>{shareDialog.blob}</ShareDialogValue>
+          </>
+        )}
       </ModalWrapper>
 
       <Left>
