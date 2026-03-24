@@ -173,6 +173,10 @@ export const buildingInputSlice = createSlice({
 
       return new_state
     },
+
+    setBuildingInputsFromScenario: (state, action: PayloadAction<BuildingInputTypes>) => {
+      return action.payload
+    },
   },
 })
 
