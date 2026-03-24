@@ -16,7 +16,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\"",
     "type-check": "tsc --noEmit",
     "deploy:vercel": "vercel --prod",
-    "deploy:netlify": "netlify deploy --prod"
+    "deploy:netlify": "netlify deploy --prod",
+    "cli:generate-url": "node --import tsx/esm cli/generate-url.ts",
+    "cli:calculate": "node --import tsx/esm cli/calculate.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -54,6 +56,7 @@
     "happy-dom": "^20.0.11",
     "prettier": "^3.4.2",
     "serve": "^14.2.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
     "vitest": "^3.2.4"
