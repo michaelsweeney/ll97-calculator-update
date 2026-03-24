@@ -28,27 +28,29 @@ const UrlStateLoader = () => {
         ? `${bbl.slice(0, 1)}-${bbl.slice(1, 6)}-${bbl.slice(6, 10)}`
         : bbl
 
-      handleLL84QueryResponse(
-        dashedBbl,
-        year,
-        (results: LL84QueryPropertyTypes[]) => {
-          const match =
-            results.find(r => r.nyc_bbl === dashedBbl) ??
-            (bin ? results.find(r => r.nyc_bin === bin) : undefined) ??
-            results[0]
-          if (!match) {
-            setError(`No LL84 record found for BBL ${dashedBbl}${bin ? ` / BIN ${bin}` : ''}.`)
-            return
-          }
+      // Search with BIN when available (unique per building, no format ambiguity).
+      // Fall back to dashed BBL otherwise.
+      const searchValue = bin ?? dashedBbl
 
-          dispatch(ll84QueryActions.setSelectedLL84Property(match))
-          dispatch(ll84QueryActions.setHasLL84SummaryBeenClosed(false))
-          const ll97_inputs = LL84SelectionToLL97Inputs(match)
-          dispatch(buildingInputActions.setBuildingInputsFromLL84Results(ll97_inputs))
-          dispatch(uiActions.setCurrentView('building_summary_dialogue'))
-        },
-        setIsLoading
-      )
+      const onResults = (results: LL84QueryPropertyTypes[]) => {
+        const match =
+          results.find(r => r.nyc_bbl === dashedBbl) ??
+          (bin ? results.find(r => r.nyc_bin === bin) : undefined) ??
+          results[0]
+
+        if (!match) {
+          setError(`No LL84 record found for BBL ${dashedBbl}${bin ? ` / BIN ${bin}` : ''}.`)
+          return
+        }
+
+        dispatch(ll84QueryActions.setSelectedLL84Property(match))
+        dispatch(ll84QueryActions.setHasLL84SummaryBeenClosed(false))
+        const ll97_inputs = LL84SelectionToLL97Inputs(match)
+        dispatch(buildingInputActions.setBuildingInputsFromLL84Results(ll97_inputs))
+        dispatch(uiActions.setCurrentView('building_summary_dialogue'))
+      }
+
+      handleLL84QueryResponse(searchValue, year, onResults, setIsLoading)
 
       const clean = new URL(window.location.href)
       clean.searchParams.delete('bbl')
