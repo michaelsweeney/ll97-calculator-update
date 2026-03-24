@@ -9,6 +9,7 @@ import { InfoIconButton, PrintIconButton, ShareIconButton } from './iconbuttons'
 import { encodeScenario } from '../shared/urlState'
 import { toScenario } from '../lib/scenarioAdapter'
 import NavMenu from './navmenu'
+import ModalWrapper from './modals/modalwrapper'
 
 import { styled } from '@mui/material/styles'
 import CalcLogo from './calclogo'
@@ -82,6 +83,34 @@ const Left = styled('div')`
 
 const TitleContainer = styled('div')``
 
+const ShareDialogLabel = styled('div')`
+  font-family: CircularStd-Bold;
+  font-size: 12px;
+  color: ${colors.grays.light};
+  margin-top: 16px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+`
+
+const ShareDialogValue = styled('div')`
+  font-family: monospace;
+  font-size: 13px;
+  background: ${colors.grays.extralight};
+  border: 1px solid #d0d0d0;
+  border-radius: 2px;
+  padding: 10px 12px;
+  word-break: break-all;
+  color: ${colors.grays.dark};
+`
+
+const ShareDialogCopied = styled('div')`
+  font-family: CircularStd-Book;
+  font-size: 14px;
+  color: ${colors.secondary.main};
+  margin-bottom: 8px;
+`
+
 const PrintButtonWrapper = styled('div')`
   display: inline-block;
   position: relative;
@@ -108,7 +137,7 @@ const NavButtonWrapper = styled('div')`
 
 const Header = () => {
   const dispatch = useAppDispatch()
-  const [copied, setCopied] = useState(false)
+  const [shareDialog, setShareDialog] = useState<{ url: string; blob: string } | null>(null)
   const { is_ll84_loaded, ll84_year_label, ll84_building_name } = useAppSelector(
     state => state.ll84_query
   )
@@ -132,13 +161,26 @@ const Header = () => {
     const encoded = encodeScenario(scenario)
     const url = new URL(window.location.href)
     url.searchParams.set('state', encoded)
-    navigator.clipboard.writeText(url.toString())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    const fullUrl = url.toString()
+    navigator.clipboard.writeText(fullUrl)
+    setShareDialog({ url: fullUrl, blob: encoded })
   }
 
   return (
     <React.Fragment>
+      <ModalWrapper
+        isOpen={shareDialog !== null}
+        exitCallback={() => setShareDialog(null)}
+        modalTitle="Link copied to clipboard"
+        closable={true}
+      >
+        <ShareDialogCopied>URL copied to clipboard.</ShareDialogCopied>
+        <ShareDialogLabel>URL</ShareDialogLabel>
+        <ShareDialogValue>{shareDialog?.url}</ShareDialogValue>
+        <ShareDialogLabel>State blob</ShareDialogLabel>
+        <ShareDialogValue>{shareDialog?.blob}</ShareDialogValue>
+      </ModalWrapper>
+
       <Left>
         <CalcLogo />
       </Left>
@@ -160,7 +202,7 @@ const Header = () => {
       </Middle>
       <Right>
         <ShareButtonWrapper>
-          <ShareIconButton width={25} height={25} active={copied} clickCallback={handleShare} />
+          <ShareIconButton width={25} height={25} active={shareDialog !== null} clickCallback={handleShare} />
         </ShareButtonWrapper>
 
         <InfoIconButtonWrapper>
