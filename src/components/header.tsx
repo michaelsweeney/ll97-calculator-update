@@ -176,7 +176,7 @@ const Header = () => {
 
     if (scenario.ll84?.bbl) {
       // LL84-loaded building: short URL with BBL + year
-      url.searchParams.set('bbl', scenario.ll84.bbl)
+      url.searchParams.set('bbl', scenario.ll84.bbl.replace(/-/g, ''))
       url.searchParams.set('year', scenario.ll84.year)
       const fullUrl = url.toString()
       navigator.clipboard.writeText(fullUrl)

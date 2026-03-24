@@ -18,12 +18,17 @@ const UrlStateLoader = () => {
     const year = params.get('year') as LL84YearTypes | null
 
     if (bbl && year) {
+      // Reconstruct dashed BBL format (B-BBBBB-LLLL) from 10-digit no-dash param
+      const dashedBbl = bbl.length === 10
+        ? `${bbl.slice(0, 1)}-${bbl.slice(1, 6)}-${bbl.slice(6, 10)}`
+        : bbl
+
       // BBL + year mode: re-fetch from LL84 API
       handleLL84QueryResponse(
-        bbl,
+        dashedBbl,
         year,
         (results: LL84QueryPropertyTypes[]) => {
-          const match = results.find(r => r.nyc_bbl === bbl) ?? results[0]
+          const match = results.find(r => r.nyc_bbl === dashedBbl) ?? results[0]
           if (!match) return
 
           dispatch(ll84QueryActions.setSelectedLL84Property(match))
